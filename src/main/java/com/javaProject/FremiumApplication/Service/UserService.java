@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class UserService {
 
     @Autowired
@@ -49,6 +51,7 @@ public class UserService {
 
 
     public Map<String, Object> login(LoginDto loginDto) {
+        Map<String, Object> response = new HashMap<>();
         try{
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginDto.getEmail(),loginDto.getPassword())
@@ -68,12 +71,12 @@ public class UserService {
 
                 userData.put("id",user.getId());
                 userData.put("email",user.getEmail());
-                userData.put("firstName",user.getFirstname());
-                userData.put("lastname",user.getLastname());
-                userData.put("role",user.getRole());
-                userData.put("phoneNumber",user.getPhoneNumber());
-                userData.put("createdAt",user.getCreatedAt());
-                userData.put("updatedAt",user.getUpdatedAt());
+                userData.put("username",user.getUsername());
+                userData.put("fullName",user.getFullName());
+                userData.put("role",user.getRoles().get(0));
+                userData.put("Bio",user.getBio());
+//                userData.put("createdAt",user.getCreatedAt());
+//                userData.put("updatedAt",user.getUpdatedAt());
 
                 response.put("msg","User Logged-in Successfully");
                 response.put("data",userData);

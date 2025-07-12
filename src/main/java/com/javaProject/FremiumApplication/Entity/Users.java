@@ -34,4 +34,5 @@ public class Users {
     private boolean isActive;
     private Instant createdAt;
     private Instant updatedAt;
+
 }
