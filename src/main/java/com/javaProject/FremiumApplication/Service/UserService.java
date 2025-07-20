@@ -38,12 +38,19 @@ public class UserService {
             throw new RuntimeException("Email Already Existed!");
         }
 
+        if (userRepository.findByUsername(users.getUsername()) != null) {
+            throw new RuntimeException("Username already exists!");
+        }
+
 
         users.setPassword(encoder.encode(users.getPassword()));
         users.setCreatedAt(Instant.now());
         users.setUpdatedAt(Instant.now());
         users.setActive(true);
-        users.setRoles(List.of(Roles.USER));
+//        users.setRoles(Roles.USER);
+        if (users.getRoles() == null || !(users.getRoles() == Roles.USER || users.getRoles() == Roles.ADMIN)) {
+            users.setRoles(Roles.USER);
+        }
 
 
         return userRepository.save(users);
@@ -73,7 +80,7 @@ public class UserService {
                 userData.put("email",user.getEmail());
                 userData.put("username",user.getUsername());
                 userData.put("fullName",user.getFullName());
-                userData.put("role",user.getRoles().get(0));
+                userData.put("role",user.getRoles().name());
                 userData.put("Bio",user.getBio());
 //                userData.put("createdAt",user.getCreatedAt());
 //                userData.put("updatedAt",user.getUpdatedAt());

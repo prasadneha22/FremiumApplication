@@ -1,17 +1,11 @@
-package com.javaProject.FremiumApplication.Entity;
+package com.javaProject.FremiumApplication.DTO;
 
-import lombok.AllArgsConstructor;
+import com.javaProject.FremiumApplication.Entity.BlogType;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Document(collection = "Blogs")
-public class Blog {
+public class BlogDto {
 
     private String id;
     private String title;
@@ -23,5 +17,4 @@ public class Blog {
     private String userId;
     private String authorName;
     private LocalDateTime createdAt;
-
 }

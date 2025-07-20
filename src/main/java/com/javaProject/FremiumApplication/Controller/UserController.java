@@ -3,6 +3,7 @@ package com.javaProject.FremiumApplication.Controller;
 import com.javaProject.FremiumApplication.DTO.LoginDto;
 import com.javaProject.FremiumApplication.Entity.Users;
 import com.javaProject.FremiumApplication.Service.UserService;
+import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,12 +23,12 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<Users> register(@RequestBody Users users){
+    public ResponseEntity<?> register(@Valid @RequestBody Users users){
         try{
             Users registerUser = userService.register(users);
             return ResponseEntity.status(HttpStatus.CREATED).body(registerUser);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("Error",e.getMessage()));
         }
     }
 
