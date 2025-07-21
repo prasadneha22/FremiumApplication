@@ -58,4 +58,37 @@ public class BlogService {
 
         return blogRepository.findAll();
     }
+
+    public Blog getPublicBlogById(String id) {
+        return blogRepository.findByIdAndType(id,BlogType.FREE)
+                .orElseThrow(()->new RuntimeException("Blog not found with ID : " + id));
+    }
+
+
+    public Blog getAllBlogsById(String id, String token) {
+        String userId = jwtService.extractUserId(token);
+
+        return blogRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("blog not found with ID : " + id));
+    }
+
+    public Blog updateBlogById(String id, String token, Blog updatedData) {
+
+        String userid = jwtService.extractUserId(token);
+
+        Blog existingBlog = blogRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Blog not found with id : " +  id));
+
+        if(!existingBlog.getUserId().equals(userid)){
+            throw new RuntimeException("you are not authorize to update this blog");
+        }
+
+        existingBlog.setTitle(updatedData.getTitle());
+        existingBlog.setDescription(updatedData.getDescription());
+        existingBlog.setContent(updatedData.getContent());
+        existingBlog.setCategory(updatedData.getCategory());
+        existingBlog.setType(updatedData.getType());
+
+        return blogRepository.save(existingBlog);
+    }
 }

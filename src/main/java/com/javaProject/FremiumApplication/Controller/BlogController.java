@@ -41,5 +41,31 @@ public class BlogController {
         return ResponseEntity.ok(blogService.getAllBlogs(token));
     }
 
+    @GetMapping("/public/{id}")
+    public ResponseEntity<?> getPublicBlogsById(@PathVariable String id){
+        Blog blog = blogService.getPublicBlogById(id);
+        return ResponseEntity.ok(blog);
+    }
+
+    @GetMapping("/all/{id}")
+    public ResponseEntity<?> getAllBlogsById(@RequestHeader("Authorization") String token ,@PathVariable String id){
+        if(token.startsWith("Bearer ")){
+            token = token.substring(7);
+        }
+        Blog blog = blogService.getAllBlogsById(id,token);
+        return ResponseEntity.ok(blog);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateBlogById(@RequestHeader("Authorization") String token, @PathVariable String id, @RequestBody Blog updatedData){
+        if(token.startsWith("Bearer ")){
+            token = token.substring(7);
+        }
+
+        Blog updatedBlog = blogService.updateBlogById(id, token, updatedData);
+        return ResponseEntity.ok(updatedBlog);
+    }
+
+
 
 }
