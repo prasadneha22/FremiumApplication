@@ -66,6 +66,23 @@ public class BlogController {
         return ResponseEntity.ok(updatedBlog);
     }
 
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteBlogById(@RequestHeader("Authorization") String token, @PathVariable String id){
+        if(token.startsWith("Bearer ")){
+            token = token.substring(7);
+        }
+        try{
+            blogService.deleteBlogById(token,id);
+            return ResponseEntity.ok("Blog deleted successfully.");
+        }catch(RuntimeException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected occurred.");
+        }
+
+
+    }
+
 
 
 }

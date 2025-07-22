@@ -91,4 +91,22 @@ public class BlogService {
 
         return blogRepository.save(existingBlog);
     }
+
+    public void deleteBlogById(String token, String id) {
+        String userId= jwtService.extractUserId(token);
+        String userRole = jwtService.extractUserRole(token);
+
+        if(!"USER".equalsIgnoreCase(userRole)){
+            throw new RuntimeException("Only users can delete blogs");
+        }
+
+        Blog blog = blogRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("Blog not found with id: " + id));
+
+        if(!userId.equals(blog.getUserId())){
+            throw new RuntimeException("you are not authorize to delete this blog");
+        }
+
+        blogRepository.deleteById(id);
+    }
 }
