@@ -1,14 +1,21 @@
 package com.javaProject.FremiumApplication.Service;
 
+import com.javaProject.FremiumApplication.DTO.BlogPageRequest;
 import com.javaProject.FremiumApplication.Entity.Blog;
 import com.javaProject.FremiumApplication.Entity.BlogType;
 import com.javaProject.FremiumApplication.Entity.Users;
 import com.javaProject.FremiumApplication.Repository.BlogRepository;
 import com.javaProject.FremiumApplication.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,14 +60,14 @@ public class BlogService {
                 .collect(Collectors.toList());
     }
 
-    public Object getAllBlogs(String token) {
+    public List<Blog> getAllBlogs(String token) {
         jwtService.extractUserId(token);
 
         return blogRepository.findAll();
     }
 
     public Blog getPublicBlogById(String id) {
-        return blogRepository.findByIdAndType(id,BlogType.FREE)
+        return blogRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("Blog not found with ID : " + id));
     }
 
@@ -108,5 +115,34 @@ public class BlogService {
         }
 
         blogRepository.deleteById(id);
+    }
+
+    public List<Blog> searchBlogsByKeyword(String token, String searchKeyword) {
+        jwtService.extractUserId(token);
+        if(searchKeyword == null || searchKeyword.trim().isEmpty()){
+            return blogRepository.findAll();
+        }
+        return blogRepository.findByTitleContainingIgnoreCase(searchKeyword);
+    }
+
+    public Page<Blog> getPaginatedBlogs(String token, BlogPageRequest request) {
+        jwtService.extractUserId(token);
+
+        int page = request.getPage() != null ? request.getPage() : 0;
+        int size = request.getSize() !=null ? request.getSize() : 10;
+        String sortBy = request.getSortBy() !=null ? request.getSortBy() : "createdAt";
+        Sort.Direction direction = request.getSortDirection() !=null ? Sort.Direction.fromString(request.getSortDirection()) : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page,size,Sort.by(direction,sortBy));
+
+        if (request.getType() != null && request.getCategory() != null) {
+            return blogRepository.findByTypeAndCategory(request.getType(), request.getCategory(), pageable);
+        } else if (request.getType() != null) {
+            return blogRepository.findByType(request.getType(), pageable);
+        } else if (request.getCategory() != null) {
+            return blogRepository.findByCategory(request.getCategory(), pageable);
+        } else {
+            return blogRepository.findAll(pageable);
+        }
     }
 }
