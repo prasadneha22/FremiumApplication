@@ -3,8 +3,10 @@ package com.javaProject.FremiumApplication.Service;
 import com.javaProject.FremiumApplication.DTO.BlogPageRequest;
 import com.javaProject.FremiumApplication.Entity.Blog;
 import com.javaProject.FremiumApplication.Entity.BlogType;
+import com.javaProject.FremiumApplication.Entity.Comment;
 import com.javaProject.FremiumApplication.Entity.Users;
 import com.javaProject.FremiumApplication.Repository.BlogRepository;
+import com.javaProject.FremiumApplication.Repository.CommentRepository;
 import com.javaProject.FremiumApplication.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,6 +28,9 @@ public class BlogService {
 
     @Autowired
     private BlogRepository blogRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -144,5 +149,21 @@ public class BlogService {
         } else {
             return blogRepository.findAll(pageable);
         }
+    }
+
+    public void addComment(String blogId, String token, String text) {
+        String userId = jwtService.extractUserId(token);
+
+        Comment comment = new Comment();
+        comment.setBlogId(blogId);
+        comment.setUserId(userId);
+        comment.setText(text);
+        comment.setCreatedAt(LocalDateTime.now());
+
+        commentRepository.save(comment);
+    }
+
+    public List<Comment> getComments(String blogId) {
+        return commentRepository.findByBlogId(blogId);
     }
 }

@@ -2,6 +2,7 @@ package com.javaProject.FremiumApplication.Controller;
 
 import com.javaProject.FremiumApplication.DTO.BlogPageRequest;
 import com.javaProject.FremiumApplication.Entity.Blog;
+import com.javaProject.FremiumApplication.Entity.Comment;
 import com.javaProject.FremiumApplication.Service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController()
 @RequestMapping("/api/blogs")
@@ -107,6 +109,37 @@ public class BlogController {
         return ResponseEntity.ok(paginatedBlogs);
     }
 
+    @PostMapping("/{blogId}/comment")
+    public ResponseEntity<?> addComment(@PathVariable String blogId, @RequestHeader("Authorization") String token, @RequestBody String text){
+        if(token.startsWith("Bearer ")){
+            token = token.substring(7);
+        }
+        try{
+            blogService.addComment(blogId,token,text);
+            return ResponseEntity.ok("Comment added");
+        }catch (IllegalArgumentException ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Blog not found");
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(("Something went wrong"));
+        }
+    }
+
+    @GetMapping("/public/{blogId}/comments")
+    public ResponseEntity<?> getComments(@PathVariable String blogId){
+        try{
+            List<Comment> comments = blogService.getComments(blogId);
+            return ResponseEntity.ok(comments);
+        }catch (IllegalArgumentException ex){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Blog not found");
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(("Something went wrong"));
+        }
+
+    }
 
 
 
